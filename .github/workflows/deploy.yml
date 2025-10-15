@@ -3,10 +3,10 @@ name: Deploy Vite React App to Main Branch
 on:
   push:
     branches:
-      - main 
+      - main
 
 permissions:
-  contents: write 
+  contents: write
 
 jobs:
   build-and-deploy:
@@ -14,9 +14,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false 
+        uses: actions/checkout@v4  
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -24,21 +22,15 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci 
+        run: npm ci
 
       - name: Build the app
-        run: npm run build  
+        run: npm run build
 
       - name: Commit and push build files to main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Add and commit build output
           git add -f dist
           git commit -m "Auto-build: update dist folder" || echo "No changes to commit"
-
-          # Push changes to main branch
           git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
