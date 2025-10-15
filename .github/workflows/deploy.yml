@@ -1,9 +1,12 @@
-name: Deploy Vite React App to GitHub Pages
+name: Deploy Vite React App to Main Branch
 
 on:
   push:
     branches:
-      - main
+      - main 
+
+permissions:
+  contents: write 
 
 jobs:
   build-and-deploy:
@@ -12,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false 
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -19,13 +24,21 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci 
 
       - name: Build the app
-        run: npm run build
+        run: npm run build  
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+      - name: Commit and push build files to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Add and commit build output
+          git add -f dist
+          git commit -m "Auto-build: update dist folder" || echo "No changes to commit"
+
+          # Push changes to main branch
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
